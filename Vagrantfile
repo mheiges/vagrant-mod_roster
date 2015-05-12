@@ -1,6 +1,6 @@
 Vagrant.configure('2') do |config|
-  config.vm.define 'mod_roster' do |mod_roster| end
-	config.vm.hostname = 'mod_roster'
+  config.vm.define 'modroster' do |modroster| end
+	config.vm.hostname = 'modroster'
 	config.vm.box = 'puppetlabs/centos-6.6-64-puppet'
   config.vm.box_url = 'https://atlas.hashicorp.com/puppetlabs/boxes/centos-6.6-64-puppet'
 
@@ -18,7 +18,7 @@ Vagrant.configure('2') do |config|
   end
   
 	config.vm.provider :virtualbox do |v|
-		v.name = 'mod_roster'
+		v.name = 'modroster'
 	end
 
 end
