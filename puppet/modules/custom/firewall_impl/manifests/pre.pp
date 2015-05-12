@@ -24,5 +24,13 @@ class firewall_impl::pre {
     proto  => 'all',
     state  => ['RELATED', 'ESTABLISHED'],
     action => 'accept',
+  }->
+  firewall { '100 allow openssh':
+    chain  => 'INPUT',
+    state  => ['NEW'],
+    dport  => '22',
+    proto  => 'tcp',
+    action => 'accept',
   }
+
 }
