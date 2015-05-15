@@ -31,6 +31,7 @@ Vagrant.configure('2') do |config|
     config.vm.provision :shell, :inline => 'yum clean all'
 
     config.vm.provision :puppet do |puppet|
+      puppet.options = '--parser future'
       puppet.manifests_path = 'puppet/manifests'
       puppet.manifest_file = ''
       puppet.hiera_config_path = 'puppet/hiera.yaml'

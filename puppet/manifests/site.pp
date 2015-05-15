@@ -2,9 +2,25 @@
 class { '::apache': }
 class { '::epel': }
 
-apache::vhost { 'first.example.com':
-  port    => '80',
-  docroot => '/var/www/first',
+# requires puppet apply option "--parser future"
+$vhosts = ['one', 'two', 'three']
+each($vhosts) |$host| {
+
+  apache::vhost { "${host}.example.com":
+    port       => '80',
+    docroot    => "/var/www/${host}",
+  }
+
+  exec { "create-${host}-index":
+    command => "echo Hello from ${host} > /var/www/${host}/index.html",
+    path    => '/bin',
+    require => Class['apache'],
+  }
+
+  host { "${host}.example.com":
+      ip => '127.0.0.1',
+  }
+
 }
 
 exec { 'create-default-index':
