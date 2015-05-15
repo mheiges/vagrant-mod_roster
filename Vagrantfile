@@ -6,6 +6,7 @@ Vagrant.configure('2') do |config|
   if Vagrant.has_plugin?('vagrant-hostmanager')
     config.hostmanager.enabled = true
     config.hostmanager.manage_host = true
+    config.hostmanager.ignore_private_ip = false
     config.hostmanager.include_offline = true
   end
 
@@ -13,7 +14,7 @@ Vagrant.configure('2') do |config|
 
     config.vm.hostname = 'modroster'
 
-    config.vm.network :private_network, type: 'static', ip: '10.0.0.3'
+    config.vm.network :private_network, type: 'static', ip: '10.1.1.3'
     config.vm.network :forwarded_port, guest: 80, host: 1080, auto_correct: true
     config.vm.network :forwarded_port, guest: 443, host: 10443, auto_correct: true
 
