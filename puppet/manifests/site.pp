@@ -14,6 +14,7 @@ each($vhosts) |$host| {
   exec { "create-${host}-index":
     command => "echo Hello from ${host} > /var/www/${host}/index.html",
     path    => '/bin',
+    creates => "/var/www/${host}/index.html",
     require => Class['apache'],
   }
 
@@ -26,6 +27,7 @@ each($vhosts) |$host| {
 exec { 'create-default-index':
   command => 'echo Hello World > /var/www/html/index.html',
   path    => '/bin',
+  creates => '/var/www/html/index.html',
   require => Class['apache'],
 }
 
@@ -40,25 +42,18 @@ package { 'perl-ExtUtils-MakeMaker':
 
 exec { 'fetch-net-rabbitmq':
   command => 'curl -OLs http://search.cpan.org/CPAN/authors/id/J/JE/JESUS/Net--RabbitMQ-0.2.8.tar.gz',
-  path    => '/usr/bin',
+  path    => ['/bin', '/usr/bin'],
   cwd     => '/tmp',
   creates => '/tmp/Net--RabbitMQ-0.2.8.tar.gz',
   require => Package['librabbitmq'],
 }
 
 exec { 'untar-net-rabbitmq':
-  command => 'tar zxf Net--RabbitMQ-0.2.8.tar.gz',
-  path    => '/bin',
+  command => 'tar --exclude=\'._*\' -zxf Net--RabbitMQ-0.2.8.tar.gz',
+  path    => ['/bin', '/usr/bin'],
   cwd     => '/tmp',
   creates => '/tmp/Net--RabbitMQ-0.2.8',
   require => Exec['fetch-net-rabbitmq'],
-}
-
-exec { 'clean-osx-strays':
-  command => 'rm -f ._*',
-  path    => '/bin',
-  cwd     => '/tmp/Net--RabbitMQ-0.2.8',
-  require => Exec['untar-net-rabbitmq'],
 }
 
 exec { 'net-rabbitmq-makefile':
@@ -66,7 +61,7 @@ exec { 'net-rabbitmq-makefile':
   path    => ['/bin', '/usr/bin'],
   cwd     => '/tmp/Net--RabbitMQ-0.2.8',
   creates => '/tmp/Net--RabbitMQ-0.2.8/Makefile',
-  require => [Package['perl-ExtUtils-MakeMaker'], Exec['clean-osx-strays']],
+  require => [Package['perl-ExtUtils-MakeMaker'], Exec['untar-net-rabbitmq']],
 }
 
 exec { 'net-rabbitmq-install':
