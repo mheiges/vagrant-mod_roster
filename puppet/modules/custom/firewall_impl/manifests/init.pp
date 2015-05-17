@@ -7,8 +7,10 @@ class firewall_impl {
   class { '::firewall_impl::pre':  stage => 'setup'  }
   class { '::firewall_impl::post': stage => 'deploy' }
 
+  # disable purge when using landrush plugin to
+  # add rules to forward DNS requests.
   resources { 'firewall':
-    purge   => true
+    purge   => false,
   }
 
 }

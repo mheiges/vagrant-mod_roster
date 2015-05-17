@@ -3,35 +3,24 @@ Vagrant.configure('2') do |config|
 	config.vm.box = 'puppetlabs/centos-6.6-64-puppet'
   config.vm.box_url = 'https://atlas.hashicorp.com/puppetlabs/boxes/centos-6.6-64-puppet'
 
-  if Vagrant.has_plugin?('vagrant-hostmanager')
-    config.hostmanager.enabled = true
-    config.hostmanager.manage_host = true
-    config.hostmanager.ignore_private_ip = false
-    config.hostmanager.include_offline = true
+  if Vagrant.has_plugin?('landrush')
+   config.landrush.enabled = true
+   config.landrush.tld = 'vm'
   end
 
   config.vm.define 'modroster' do |modroster|
 
-    config.vm.hostname = 'modroster'
+    config.vm.hostname = 'modroster.vm'
 
-    config.vm.network :private_network, type: 'static', ip: '10.1.1.3'
+    #config.vm.network :private_network, type: 'static', ip: '10.1.1.3'
     config.vm.network :forwarded_port, guest: 80, host: 1080, auto_correct: true
     config.vm.network :forwarded_port, guest: 443, host: 10443, auto_correct: true
-
-    if Vagrant.has_plugin?('vagrant-hostmanager')
-      config.hostmanager.ip_resolver = proc do |vm, resolving_vm|
-        if vm.id
-          getIpFromVboxManage(vm.id)
-        end
-      end
-      config.vm.provision :hostmanager
-    end
 
     config.vm.provision :shell, :path   => "install-puppet-modules.sh"
     config.vm.provision :shell, :inline => 'yum clean all'
 
     config.vm.provision :puppet do |puppet|
-      puppet.options = '--parser future'
+      puppet.options = '--parser future' # vhost iteration in site.pp
       puppet.manifests_path = 'puppet/manifests'
       puppet.manifest_file = ''
       puppet.hiera_config_path = 'puppet/hiera.yaml'
@@ -43,20 +32,5 @@ Vagrant.configure('2') do |config|
     end
 
   end
-end
 
-# Get the guest IP address from VBoxManage. This is specific to VirtualBox.
-# This works for either dhcp or static network types (although is a little
-# superfluous if you already know the static IP assignment).
-# VBoxManage may take a few seconds to pick up static IP assignments. Loop
-# until it does.
-def getIpFromVboxManage(id)
-  ip=`VBoxManage guestproperty get #{id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
-  if ip !~ /(\d+\.\d+\.\d+\.\d+)/
-    puts 'VirtualBox guest IP not set. Retrying...'
-    sleep(1)
-    getIpFromVboxManage(id)
-  else
-    return ip
-  end
-end
+end 
