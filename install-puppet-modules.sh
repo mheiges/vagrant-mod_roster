@@ -5,7 +5,7 @@ module_path=/vagrant/puppet/modules/forge
 mkdir -p "${module_path}"
 
 for module_src in \
-                    stahnma/epel \
+                    stahnma-epel \
                     puppetlabs-apache \
                     puppetlabs-firewall; do
 
